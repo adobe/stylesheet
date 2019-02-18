@@ -23,6 +23,7 @@
 
 #include "StyleSheet/Element.h"
 #include <boost/tokenizer.hpp>
+#include <list>
 
 namespace StyleSheet {
 
@@ -31,6 +32,19 @@ class CssDocument
 public:
 	CssDocument() {}
 	// static ctor
+
+	static CssDocument* parseP( const std::string& doc )
+	{
+		CssDocument* document = new CssDocument();
+		boost::char_separator<char> sep( "\n" );
+		boost::tokenizer<boost::char_separator<char> > tok( doc, sep );
+		for( boost::tokenizer<boost::char_separator<char> >::iterator it = tok.begin(); it != tok.end(); ++it )
+		{
+			document->addElement( CssElement::parse( *it ) );
+		}
+		return document;
+	}
+
 	static CssDocument parse(const std::string& doc)
 	{
 		CssDocument document;
@@ -38,7 +52,18 @@ public:
 		boost::tokenizer<boost::char_separator<char> > tok(doc, sep);
 		for (boost::tokenizer<boost::char_separator<char> >::iterator it = tok.begin(); it != tok.end(); ++it)
 		{
-			document.addElement(CssElement::parse(*it));
+			CssElement newElement = CssElement::parse(*it);
+			
+			if( document.hasSelector(newElement.getSelector()) )
+			{
+				CssElement currentElement = document.getElement(newElement.getSelector());
+				currentElement.merge(newElement);
+
+				document.removeElement(currentElement.getSelector());
+				document.addElement(currentElement);
+			}
+			else
+				document.addElement(newElement);
 		}
 		return document;
 	}
@@ -59,10 +84,21 @@ public:
 
 	void addElement(const CssElement& element)
 	{
+    elements_.remove_if(SelectorFinder(element.getSelector()));
 		if (element.getPropertyCount() == 0)
 			return;
-		elements_.insert(element);
+		elements_.push_back(element);
 	}
+  
+  void removeElement(const CssSelector& selector)
+  {
+    elements_.remove_if(SelectorFinder(selector));
+  }
+  
+  const std::list<CssElement>& getElements() const
+  {
+    return elements_;
+  }
 
 	std::string toString() const
 	{
@@ -75,7 +111,7 @@ public:
 	}
 
 private:
-	typedef std::set<CssElement> CssElementSet;
+	typedef std::list<CssElement> CssElementSet;
 	CssElementSet elements_;
 
 private:

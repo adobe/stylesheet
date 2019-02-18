@@ -53,6 +53,8 @@ public:
 
 	void addProperty(const CssProperty& prop) { properties_.add(prop); }
 
+	void merge(const CssElement& element){ properties_.add(element.properties_); }
+
 	std::string toString() const {
 		return selector_.toString() + " { " + properties_.toString() + "}";
 	}
