@@ -1,5 +1,6 @@
 /*
  *   Copyright 2010, Marco Ambu.
+ *   Copyright 2019 Adobe Systems Incorporated
  *
  *   This file is part of StyleSheet library.
  *
