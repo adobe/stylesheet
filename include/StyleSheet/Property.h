@@ -35,7 +35,7 @@ public:
   }
 
   CssProperty(const std::string& name, const std::string& value)
-          : name_(name), value_(value)
+          : first(name), second(value)
   {
     // TODO: check name and value validity
   }
@@ -58,19 +58,18 @@ public:
   }
 
   bool operator<(const CssProperty& p) const {
-    return name_ < p.name_/* || (name_ == p.name_ && value_ < p.value_)*/;
+    return first < p.first/* || (first == p.first && second < p.second)*/;
   }
 
-  const std::string& getName() const { return name_; }
-  const std::string& getValue() const { return value_; }
+  const std::string& getName() const { return first; }
+  const std::string& getValue() const { return second; }
 
-  bool isValid() const { return !name_.empty(); }
+  bool isValid() const { return !first.empty(); }
 
-  std::string toString() const { return name_ + ": " + value_ + ";"; }
+  std::string toString() const { return first + ": " + second + ";"; }
 
-private:
-  std::string name_;
-  std::string value_;
+  std::string first;
+  std::string second;
 };
 
 } // namespace StyleSheet

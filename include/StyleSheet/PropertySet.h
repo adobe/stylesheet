@@ -46,11 +46,26 @@ public:
 		return properties;
 	}
 
+    typedef std::set<CssProperty>::iterator iterator;
+    typedef std::set<CssProperty>::const_iterator const_iterator;
+
+    iterator begin() { return properties_.begin(); }
+
+    const_iterator begin() const { return properties_.begin(); }
+
+    iterator end() { return properties_.end(); }
+
+    const_iterator end() const { return properties_.end(); }
+
 	void add(const CssProperty& prop)
 	{
 		if (prop.getValue().empty())
 			return;
 		properties_.insert(prop);
+	}
+	void insert(const CssProperty& prop)
+	{
+		add(prop);
 	}
 	void remove(const std::string& /*propName*/) {}
 
@@ -63,16 +78,21 @@ public:
 	std::size_t size() const { return properties_.size(); }
 	bool empty() const { return properties_.empty(); }
 
+	const_iterator find(const std::string& name) const
+	{
+		return std::find_if(properties_.begin(), properties_.end(), PropertyFinder(name));
+	}
+
 	const CssProperty& getProperty(const std::string& name) const
 	{
-		PropertySet::const_iterator it = std::find_if(properties_.begin(), properties_.end(), PropertyFinder(name));
+		PropertySet::const_iterator it = find(name);
 		if (it == properties_.end())
 			return CssProperty::Empty();
 		return *it;
 	}
 
 	std::string toString() const
-  {
+    {
 		std::string res;
 		for (PropertySet::const_iterator it = properties_.begin(); it != properties_.end(); ++it)
 			res += it->toString() + " ";
